@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lifemap · Personal Archaeology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d1a;
+  --surface: #161626;
+  --surface2: #1c1c30;
+  --border: #28283f;
+  --accent: #c9933a;
+  --accent2: #e8c06b;
+  --text: #e4ddd0;
+  --text-muted: #8a8499;
+  --text-dim: #514d62;
+  --danger: #c05050;
+  --radius: 10px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Crimson Pro', Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(201,147,58,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 85%, rgba(90,70,160,0.06) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13,13,26,0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--accent2);
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.logo-sub {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ─── BUTTONS ──────────────────────────────────────────────── */
+.btn {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 7px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--surface2);
+  color: var(--text-muted);
+}
+.btn:hover { border-color: var(--accent); color: var(--accent2); background: var(--surface2); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #0d0d1a;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #0d0d1a; }
+
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-ghost:hover { background: var(--surface2); border-color: var(--border); }
+.btn-danger { color: var(--danger); }
+.btn-danger:hover { border-color: var(--danger); background: rgba(192,80,80,0.08); color: var(--danger); }
+
+/* ─── TIMELINE ─────────────────────────────────────────────── */
+#timeline-section {
+  padding: 36px 28px 20px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-inner {
+  position: relative;
+  min-width: max-content;
+  padding-bottom: 8px;
+}
+
+.timeline-axis {
+  position: absolute;
+  top: 46px;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border) 4%, var(--border) 96%, transparent);
+}
+
+.timeline-cards {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.period-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  min-width: 148px;
+  max-width: 168px;
+}
+
+.period-dot {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--accent);
+  margin: 40px 0 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.period-node:hover .period-dot,
+.period-node.active .period-dot {
+  transform: scale(1.6);
+  box-shadow: 0 0 0 5px rgba(201,147,58,0.18);
+}
+
+.period-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  width: 100%;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.period-node:hover .period-card { border-color: rgba(201,147,58,0.5); transform: translateY(-2px); }
+.period-node.active .period-card {
+  border-color: var(--accent);
+  background: var(--surface2);
+  box-shadow: 0 6px 24px rgba(201,147,58,0.1);
+  transform: translateY(-2px);
+}
+
+.period-label {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--accent2);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.period-age { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.period-location {
+  font-size: 11px; color: var(--text-dim);
+  margin-top: 3px; font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.period-phase-tag {
+  display: inline-block;
+  margin-top: 7px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(201,147,58,0.1);
+  color: var(--accent);
+  border: 1px solid rgba(201,147,58,0.22);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Empty state */
+.empty-timeline {
+  text-align: center;
+  padding: 64px 28px;
+  color: var(--text-muted);
+}
+
+.empty-icon { font-size: 52px; opacity: 0.25; margin-bottom: 18px; }
+
+.empty-timeline h3 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.empty-timeline p { font-size: 15px; color: var(--text-dim); max-width: 380px; margin: 0 auto 20px; }
+
+/* ─── DETAIL PANEL ────────────────────────────────────────── */
+#detail-panel {
+  margin: 4px 28px 48px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow: hidden;
+  display: none;
+  position: relative;
+  z-index: 1;
+  animation: panelIn 0.22s ease;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#detail-panel.visible { display: block; }
+
+.detail-header {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.detail-meta h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--accent2);
+  line-height: 1.2;
+}
+
+.detail-meta-row {
+  display: flex;
+  gap: 22px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-icon { opacity: 0.5; font-size: 11px; }
+.detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.detail-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 680px) {
+  .detail-body { grid-template-columns: 1fr; }
+  .detail-section { border-right: none !important; }
+}
+
+.detail-section {
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.detail-section:nth-child(2n) { border-right: none; }
+.detail-section:nth-last-child(-n+2) { border-bottom: none; }
+
+.detail-section h4 {
+  font-family: var(--font-display);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.detail-section p { font-size: 16px; color: var(--text); line-height: 1.75; }
+
+.detail-section ul { list-style: none; padding: 0; }
+.detail-section ul li {
+  padding: 4px 0 4px 18px;
+  position: relative;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.detail-section ul li::before {
+  content: '◆';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 7px;
+  top: 9px;
+}
+
+.empty-section { color: var(--text-dim); font-style: italic; font-size: 15px; }
+
+/* ─── MODAL ───────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(5px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s;
+}
+
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(14px);
+  transition: transform 0.22s;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-header {
+  padding: 22px 28px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: var(--surface2);
+  z-index: 2;
+}
+
+.modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--accent2);
+}
+
+.modal-body { padding: 22px 28px; display: flex; flex-direction: column; gap: 18px; }
+
+.modal-footer {
+  padding: 14px 28px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  gap: 10px;
+}
+
+.modal-footer-right { display: flex; gap: 8px; }
+
+/* Form elements */
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.field input,
+.field textarea,
+.field select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.field input:focus,
+.field textarea:focus { outline: none; border-color: var(--accent); }
+
+.field textarea { resize: vertical; min-height: 82px; line-height: 1.65; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.field-hint { font-size: 12px; color: var(--text-dim); font-style: italic; }
+
+.section-divider {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Events list in form */
+.events-list { display: flex; flex-direction: column; gap: 7px; }
+
+.event-item { display: flex; gap: 8px; align-items: center; }
+.event-item input { flex: 1; }
+
+.remove-event {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  font-family: monospace;
+}
+.remove-event:hover { color: var(--danger); }
+
+.add-event-btn {
+  align-self: flex-start;
+  font-size: 13px;
+  color: var(--accent);
+  background: none;
+  border: 1px dashed rgba(201,147,58,0.3);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.add-event-btn:hover { border-color: var(--accent); background: rgba(201,147,58,0.05); }
+
+/* ─── STATS BAR ───────────────────────────────────────────── */
+#stats-bar {
+  display: none;
+  padding: 0 28px 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+#stats-bar.visible { display: flex; }
+
+.stat-chip {
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 14px;
+}
+.stat-chip b { color: var(--text-muted); font-weight: 600; }
+
+/* ─── TOAST ───────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--accent2);
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 300;
+  transform: translateY(10px);
+  opacity: 0;
+  transition: all 0.28s;
+  pointer-events: none;
+  border-left: 3px solid var(--accent);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    Lifemap <span class="logo-sub">· personal archaeology</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" id="import-btn">↑ Import</button>
+    <button class="btn btn-ghost" id="export-btn">↓ Export</button>
+    <button class="btn btn-primary" id="add-btn">+ Add Period</button>
+  </div>
+</header>
+
+<input type="file" id="file-input" accept=".json" style="display:none">
+
+<section id="timeline-section">
+  <div id="timeline-container"></div>
+</section>
+
+<div id="stats-bar"></div>
+
+<div id="detail-panel">
+  <div class="detail-header">
+    <div class="detail-meta">
+      <h2 id="dp-title"></h2>
+      <div class="detail-meta-row">
+        <span class="meta-chip"><span class="meta-icon">◎</span><span id="dp-age"></span></span>
+        <span class="meta-chip"><span class="meta-icon">⌖</span><span id="dp-location"></span></span>
+        <span class="meta-chip"><span class="meta-icon">◈</span><span id="dp-phase"></span></span>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-ghost" id="dp-edit">Edit</button>
+      <button class="btn btn-ghost btn-danger" id="dp-delete">Delete</button>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-section">
+      <h4>Key Events &amp; Turning Points</h4>
+      <ul id="dp-events"></ul>
+    </div>
+    <div class="detail-section">
+      <h4>Beliefs &amp; Conditioning Patterns</h4>
+      <p id="dp-beliefs"></p>
+    </div>
+    <div class="detail-section">
+      <h4>Emotions &amp; Inner States</h4>
+      <p id="dp-emotions"></p>
+    </div>
+    <div class="detail-section">
+      <h4>People &amp; Relationships</h4>
+      <p id="dp-relationships"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">New Life Period</h3>
+      <button class="btn btn-ghost" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="field">
+        <label>Period Title</label>
+        <input type="text" id="f-title" placeholder="e.g. The Wandering Years, Formation, After the Shift…">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Age — Start</label>
+          <input type="number" id="f-age-start" placeholder="0" min="0" max="120">
+        </div>
+        <div class="field">
+          <label>Age — End</label>
+          <input type="number" id="f-age-end" placeholder="12" min="0" max="120">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Location(s)</label>
+        <input type="text" id="f-location" placeholder="e.g. Pehowa · Delhi · …">
+      </div>
+
+      <div class="field">
+        <label>Psychological / Emotional Phase</label>
+        <input type="text" id="f-phase" placeholder="e.g. Formation, Seeking, Dissolution, Rebuild…">
+        <span class="field-hint">Name it in your own language. No framework needed.</span>
+      </div>
+
+      <div class="section-divider">Four Dimensions</div>
+
+      <div class="field">
+        <label>Key Events &amp; Turning Points</label>
+        <div class="events-list" id="events-list"></div>
+        <button class="add-event-btn" id="add-event-btn">+ Add an event</button>
+      </div>
+
+      <div class="field">
+        <label>Beliefs &amp; Conditioning Patterns</label>
+        <textarea id="f-beliefs" placeholder="What did you believe about yourself, about life, about others? What patterns were forming or reinforcing?"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Emotions &amp; Inner States</label>
+        <textarea id="f-emotions" placeholder="What was the dominant emotional texture of this time? What was underneath the surface?"></textarea>
+      </div>
+
+      <div class="field">
+        <label>People &amp; Relationships</label>
+        <textarea id="f-relationships" placeholder="Who were the shaping presences of this period? What did these dynamics teach or imprint?"></textarea>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-danger" id="modal-delete-btn" style="display:none">Delete Period</button>
+      <div class="modal-footer-right">
+        <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="modal-save">Save Period</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+const STORE_KEY = 'lifemap_v1';
+let state = { periods: [] };
+let activePeriodId = null;
+let editingPeriodId = null;
+
+// ── PERSISTENCE ────────────────────────────────────────────────
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) state = JSON.parse(raw);
+  } catch(e) { console.warn('Load error', e); }
+}
+
+function saveState() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+
+// ── UTILS ──────────────────────────────────────────────────────
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function esc(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── TIMELINE ───────────────────────────────────────────────────
+function renderTimeline() {
+  const container = document.getElementById('timeline-container');
+  const sorted = [...state.periods].sort((a,b) => (a.ageStart||0) - (b.ageStart||0));
+
+  if (sorted.length === 0) {
+    container.innerHTML = `
+      <div class="empty-timeline">
+        <div class="empty-icon">⧗</div>
+        <h3>Your archaeology begins here</h3>
+        <p>Each period you add becomes a layer of the self you are learning to witness.</p>
+        <button class="btn btn-primary" onclick="openModal()">+ Add Your First Period</button>
+      </div>`;
+    updateStats([]);
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="timeline-inner">
+      <div class="timeline-axis"></div>
+      <div class="timeline-cards">
+        ${sorted.map(p => `
+          <div class="period-node ${p.id === activePeriodId ? 'active' : ''}" data-id="${p.id}">
+            <div class="period-dot"></div>
+            <div class="period-card">
+              <div class="period-label">${esc(p.title || 'Untitled')}</div>
+              <div class="period-age">Age ${p.ageStart ?? '?'} – ${p.ageEnd ?? '?'}</div>
+              ${p.location ? `<div class="period-location">${esc(p.location)}</div>` : ''}
+              ${p.phase ? `<div class="period-phase-tag">${esc(p.phase)}</div>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  container.querySelectorAll('.period-node').forEach(node => {
+    node.addEventListener('click', () => {
+      const id = node.dataset.id;
+      activePeriodId = (activePeriodId === id) ? null : id;
+      renderTimeline();
+      renderDetail();
+    });
+  });
+
+  updateStats(sorted);
+}
+
+function updateStats(sorted) {
+  const bar = document.getElementById('stats-bar');
+  if (sorted.length === 0) { bar.classList.remove('visible'); return; }
+
+  const totalYears = sorted.reduce((s, p) => s + Math.max(0,(p.ageEnd||0)-(p.ageStart||0)), 0);
+  const phases = [...new Set(sorted.filter(p=>p.phase).map(p=>p.phase))];
+
+  bar.classList.add('visible');
+  bar.innerHTML = `
+    <div class="stat-chip"><b>${sorted.length}</b> period${sorted.length !== 1 ? 's' : ''} mapped</div>
+    <div class="stat-chip"><b>${totalYears}</b> years documented</div>
+    ${phases.length ? `<div class="stat-chip"><b>${phases.length}</b> phase${phases.length !== 1 ? 's' : ''}: ${phases.map(p=>`<em>${esc(p)}</em>`).join(', ')}</div>` : ''}
+  `;
+}
+
+// ── DETAIL PANEL ───────────────────────────────────────────────
+function renderDetail() {
+  const panel = document.getElementById('detail-panel');
+
+  if (!activePeriodId) {
+    panel.classList.remove('visible');
+    return;
+  }
+
+  const p = state.periods.find(x => x.id === activePeriodId);
+  if (!p) { panel.classList.remove('visible'); return; }
+
+  panel.classList.add('visible');
+
+  document.getElementById('dp-title').textContent = p.title || 'Untitled';
+  document.getElementById('dp-age').textContent = `Age ${p.ageStart ?? '?'} – ${p.ageEnd ?? '?'}`;
+  document.getElementById('dp-location').textContent = p.location || '—';
+  document.getElementById('dp-phase').textContent = p.phase || '—';
+
+  const evList = document.getElementById('dp-events');
+  const evts = (p.events || []).filter(e => e.trim());
+  if (evts.length > 0) {
+    evList.innerHTML = evts.map(e => `<li>${esc(e)}</li>`).join('');
+  } else {
+    evList.innerHTML = `<li class="empty-section">No events recorded yet.</li>`;
+  }
+
+  setDetailText('dp-beliefs', p.beliefs);
+  setDetailText('dp-emotions', p.emotions);
+  setDetailText('dp-relationships', p.relationships);
+
+  document.getElementById('dp-edit').onclick = () => openModal(p.id);
+  document.getElementById('dp-delete').onclick = () => confirmDelete(p.id);
+
+  setTimeout(() => {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+
+function setDetailText(id, val) {
+  const el = document.getElementById(id);
+  if (val && val.trim()) {
+    el.textContent = val;
+    el.className = '';
+  } else {
+    el.textContent = 'Nothing recorded yet.';
+    el.className = 'empty-section';
+  }
+}
+
+// ── MODAL ──────────────────────────────────────────────────────
+function openModal(id = null) {
+  editingPeriodId = id;
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-title').textContent = id ? 'Edit Life Period' : 'New Life Period';
+  document.getElementById('modal-delete-btn').style.display = id ? 'block' : 'none';
+
+  if (id) {
+    const p = state.periods.find(x => x.id === id);
+    document.getElementById('f-title').value = p.title || '';
+    document.getElementById('f-age-start').value = p.ageStart ?? '';
+    document.getElementById('f-age-end').value = p.ageEnd ?? '';
+    document.getElementById('f-location').value = p.location || '';
+    document.getElementById('f-phase').value = p.phase || '';
+    document.getElementById('f-beliefs').value = p.beliefs || '';
+    document.getElementById('f-emotions').value = p.emotions || '';
+    document.getElementById('f-relationships').value = p.relationships || '';
+    buildEventsList(p.events && p.events.length ? p.events : ['']);
+  } else {
+    ['f-title','f-age-start','f-age-end','f-location','f-phase','f-beliefs','f-emotions','f-relationships']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    buildEventsList(['']);
+  }
+
+  overlay.classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingPeriodId = null;
+}
+
+function buildEventsList(events) {
+  const list = document.getElementById('events-list');
+  list.innerHTML = events.map((e, i) => `
+    <div class="event-item" data-idx="${i}">
+      <input type="text" class="event-input" value="${esc(e)}" placeholder="A turning point or significant moment…">
+      <button class="remove-event" title="Remove">×</button>
+    </div>`).join('');
+
+  list.querySelectorAll('.remove-event').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const items = getEventsFromDOM();
+      const idx = parseInt(btn.closest('.event-item').dataset.idx);
+      items.splice(idx, 1);
+      buildEventsList(items.length ? items : ['']);
+    });
+  });
+}
+
+function getEventsFromDOM() {
+  return [...document.querySelectorAll('.event-input')].map(i => i.value);
+}
+
+document.getElementById('add-event-btn').addEventListener('click', () => {
+  buildEventsList([...getEventsFromDOM(), '']);
+  const list = document.getElementById('events-list');
+  const lastInput = list.querySelector('.event-item:last-child input');
+  if (lastInput) setTimeout(() => lastInput.focus(), 50);
+});
+
+// Save period
+document.getElementById('modal-save').addEventListener('click', () => {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { toast('A title is needed to anchor this period.'); return; }
+
+  const ageStart = parseInt(document.getElementById('f-age-start').value);
+  const ageEnd   = parseInt(document.getElementById('f-age-end').value);
+
+  if (!isNaN(ageStart) && !isNaN(ageEnd) && ageEnd < ageStart) {
+    toast('Age end should be equal to or after age start.');
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const period = {
+    id: editingPeriodId || uid(),
+    title,
+    ageStart: isNaN(ageStart) ? null : ageStart,
+    ageEnd:   isNaN(ageEnd)   ? null : ageEnd,
+    location: document.getElementById('f-location').value.trim(),
+    phase:    document.getElementById('f-phase').value.trim(),
+    events:   getEventsFromDOM().map(e=>e.trim()).filter(Boolean),
+    beliefs:  document.getElementById('f-beliefs').value.trim(),
+    emotions: document.getElementById('f-emotions').value.trim(),
+    relationships: document.getElementById('f-relationships').value.trim(),
+    updatedAt: now
+  };
+
+  if (editingPeriodId) {
+    const existing = state.periods.find(x => x.id === editingPeriodId);
+    period.createdAt = existing ? existing.createdAt : now;
+    const idx = state.periods.findIndex(x => x.id === editingPeriodId);
+    state.periods[idx] = period;
+    toast('Period updated.');
+  } else {
+    period.createdAt = now;
+    state.periods.push(period);
+    activePeriodId = period.id;
+    toast('Period added to your map.');
+  }
+
+  saveState();
+  closeModal();
+  renderTimeline();
+  renderDetail();
+});
+
+document.getElementById('modal-delete-btn').addEventListener('click', () => {
+  if (editingPeriodId) { confirmDelete(editingPeriodId, true); }
+});
+
+function confirmDelete(id, fromModal = false) {
+  if (!confirm('Remove this period from your life map?')) return;
+  state.periods = state.periods.filter(p => p.id !== id);
+  if (activePeriodId === id) activePeriodId = null;
+  saveState();
+  if (fromModal) closeModal();
+  renderTimeline();
+  renderDetail();
+  toast('Period removed.');
+}
+
+// Modal close triggers
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target.id === 'modal-overlay') closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ── IMPORT / EXPORT ────────────────────────────────────────────
+document.getElementById('export-btn').addEventListener('click', () => {
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `lifemap-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('Backup exported.');
+});
+
+document.getElementById('import-btn').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+
+document.getElementById('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data.periods)) throw new Error('Invalid');
+      if (!confirm(`Import ${data.periods.length} period(s)? Your current data will be replaced.`)) return;
+      state = data;
+      activePeriodId = null;
+      saveState();
+      renderTimeline();
+      renderDetail();
+      toast(`Imported ${data.periods.length} period(s).`);
+    } catch {
+      toast('Import failed — file format not recognised.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ── HEADER + INIT ──────────────────────────────────────────────
+document.getElementById('add-btn').addEventListener('click', () => openModal());
+
+loadState();
+renderTimeline();
+renderDetail();
+
+// ── SERVICE WORKER (inline blob for offline) ───────────────────
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'lifemap-v1';
+    self.addEventListener('install', () => self.skipWaiting());
+    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+    self.addEventListener('fetch', e => {
+      e.respondWith(
+        caches.match(e.request).then(cached => {
+          if (cached) return cached;
+          return fetch(e.request).then(res => {
+            if (!res || res.status !== 200) return res;
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+            return res;
+          }).catch(() => cached);
+        })
+      );
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+</script>
+</body>
+</html>
